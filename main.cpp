@@ -47,10 +47,13 @@ int main() {
   	p.chars[3] = L']';
 
   cchar_t bg;
-  	bg.chars[0] = L'[';
+  	bg.chars[0] = L' ';
   	bg.chars[1] = L'🛥';	
   	bg.chars[2] = L' ';
-  	bg.chars[3] = L']';
+  	bg.chars[3] = L' ';
+
+    init_pair(1, COLOR_RED, COLOR_BLACK); 
+    bg.attr = A_BOLD | COLOR_PAIR(1); 
 
 
   int maxY = 0, maxX = 0;

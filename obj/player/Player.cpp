@@ -19,6 +19,42 @@ void printcchar(WinObj* w, int x, int y, cchar_t* cchar) {
   mvwin_wch(w->w, 1+y, 1+x*w->sizeStr, cchar); 
 }
 
+// void Player::ReadLast() {
+//   lastStrs.clear();
+//   for (const auto& c : coords) {
+//       mvwin_wch(w->w, y,   x, &cchar[0]);
+//       lastStrs.push_back({{x, y}, cchar[0]});
+//       mvwin_wch(w->w, y, 1+x, &cchar[1]);
+//       lastStrs.push_back({{1+x, y}, cchar[1]});
+//       mvwin_wch(w->w, y, 2+x,& cchar[2]);
+//       lastStrs.push_back({{2+x, y}, cchar[2]});
+//       mvwin_wch(w->w, y, 3+x, &cchar[3]);
+//       lastStrs.push_back({{3+x, y}, cchar[3]});
+//       //mvwin_wch(w->w, y, x, &cchar);
+//   }
+// }
+
+// void Player::ReadLast() {
+//   lastStrs.clear();
+//   for (const auto& c : coords) {
+//       cchar_t cchar[4];
+//       int y = 1 + c.second;
+//       int x = 1 + c.first * w->sizeStr;
+
+//       // mvwin_wch(w->w, y, x, &cchar[0]);
+//       // lastStrs.push_back({{x, y}, cchar[0]});
+
+//       mvwin_wch(w->w, y, 1+x, &cchar[1]);
+//       lastStrs.push_back({{1+x, y}, cchar[1]});
+
+//       mvwin_wch(w->w, y, 2+x, &cchar[2]);
+//       lastStrs.push_back({{2+x, y}, cchar[2]});
+
+//       // mvwin_wch(w->w, y, 3+x, &cchar[3]);
+//       // lastStrs.push_back({{3+x, y}, cchar[3]});
+//   }
+// }
+
 void Player::ReadLast() {
   lastStrs.clear();
   for (const auto& c : coords) {
