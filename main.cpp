@@ -31,11 +31,13 @@ int main() {
   std::locale::global(std::locale("en_US.UTF-8"));
   init();
 
-    //wchar_t wideChars = L'[12]';
+    // wchar_t wideChars = L'🛥';
 
-    //cchar_t wideChar;
-    //attr_t attributes = A_BOLD | COLOR_PAIR(1);
-    //setcchar(&wideChar, &wideChars, attributes, 0, NULL);
+    // // Create a cchar_t structure wideChar with attributes A_BOLD and color pair 1
+    // cchar_t wideChar;
+    // attr_t attributes = A_BOLD | COLOR_PAIR(1);
+    // setcchar(&wideChar, &wideChars, attributes, 0, NULL);
+    // cchar_t bg = wideChar;
   	
 
   cchar_t p;
@@ -46,8 +48,8 @@ int main() {
 
   cchar_t bg;
   	bg.chars[0] = L'[';
-  	bg.chars[1] = L'1';	
-  	bg.chars[2] = L'2';
+  	bg.chars[1] = L'🛥';	
+  	bg.chars[2] = L' ';
   	bg.chars[3] = L']';
 
 

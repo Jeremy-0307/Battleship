@@ -20,21 +20,21 @@ void printcchar(WinObj* w, int x, int y, cchar_t* cchar) {
 }
 
 void Player::ReadLast() {
-    lastStrs.clear();
-    for (const auto& c : coords) {
-        for (int i = 0; i < 4; ++i) {
-            cchar_t cchar;
-            mvwin_wch(w->w, 1 + c.second, i + 1 + c.first * w->sizeStr, &cchar);
-            lastStrs.push_back({{i+c.first, c.second}, cchar});
-        }
+  lastStrs.clear();
+  for (const auto& c : coords) {
+    for (int i = 0; i < 4; ++i) {
+      cchar_t cchar;
+      int y = 1 + c.second;
+      int x = i + 1 + c.first * w->sizeStr;
+      mvwin_wch(w->w, y, x, &cchar);
+      lastStrs.push_back({{x, y}, cchar});
     }
+  }
 }
 
 void Player::PrintLast() {
-    int contador = 0;
     for (const auto& s : lastStrs) {
-      mvwadd_wch(w->w, 1 + s.first.second,  contador+1 + (s.first.first-contador)* w->sizeStr, &s.second);
-      contador = (contador==4)?0:contador+1;
+      mvwadd_wch(w->w, s.first.second, s.first.first, &s.second);
     }
 }
 
