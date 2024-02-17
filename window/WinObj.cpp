@@ -1,25 +1,25 @@
 #include "WinObj.hpp"
+
+#include <cstdlib>
 #include <cstring>
 #include <cwchar>
-#include <cstdlib>
 
+WinObj::WinObj(int height, int width, int x, int y, const cchar_t& s)
+    : height(height), width(width) {
+  w = newwin(height, width, x, y);
+  refresh();
+  sizeStr = wcslen(s.chars);
 
-void Printcchar(WINDOW* w, int x, int y, cchar_t* wideChar, int n) {
-    for (int i = 0; i < n; ++i) {
-        mvwadd_wch(w, y, x + i, wideChar);
+  box(w, 0, 0);
+  int num_horizontal_marks = width / 4;
+  for (int y_coord = 1; y_coord < height - 1; y_coord++) {
+    mvwprintw(w, y_coord, 0, "%d", y_coord - 1);
+    for (int x_coord = 0; x_coord < num_horizontal_marks; ++x_coord) {
+      int x_offset = x_coord * sizeStr;
+      mvwprintw(w, y_coord, 1 + x_offset, "%ls", s.chars);
+      mvwprintw(w, 0, 3 + x_offset, "%d", x_coord);
     }
-}
-
-WinObj::WinObj(int height, int width, int x, int y, const cchar_t& s) : height(height), width(width) {
-    w = newwin(height, width, x, y);
-    refresh();
-    sizeStr = wcslen(s.chars);
-    for (int x = 1; x < height-1; x++) {
-        for (int y = 1; y < width-1; y += sizeStr) {
-            mvwprintw(this->w, x, y, "%ls", s.chars); 
-        }
-    }
-    box(w, 0, 0);
+  }
 }
 
 WinObj::~WinObj() {}

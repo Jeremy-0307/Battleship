@@ -1,26 +1,26 @@
 #ifndef WINOBJ_HPP
 #define WINOBJ_HPP
 
-#include <ncurses.h>
 #include <curses.h>
-#include <string>
-#include <cwchar> // unicode
-#include <locale>
+#include <ncurses.h>
 
+#include <cwchar>  // unicode
+#include <locale>
+#include <string>
 
 class WinObj {
-public:
-    int height, width;
-    int limx, limy;
-    int sizeStr;
-    cchar_t* s;
-    WINDOW* w;
+ public:
+  int height, width;
+  int limx, limy;
+  int sizeStr;
+  cchar_t* s;
+  WINDOW* w;
 
-    WinObj(int height, int width, int x, int y, const cchar_t& s);
+  WinObj(int height, int width, int x, int y, const cchar_t& s);
 
-    ~WinObj();
+  ~WinObj();
 
-    void CheckSize(/*int x, int y*/);
+  void CheckSize(/*int x, int y*/);
 };
 
-#endif // WINOBJ_HPP
+#endif  // WINOBJ_HPP

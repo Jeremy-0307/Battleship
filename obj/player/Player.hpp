@@ -4,19 +4,17 @@
 #include "../Obj.hpp"
 
 class Player : public Obj {
-public:
+ public:
+  std::vector<std::pair<coord, cchar_t>> lastStrs;
 
-    std::vector<std::pair<coord, cchar_t >> lastStrs;
+  Player(coordVec coords, const cchar_t& symbol, WinObj* w);
+  ~Player();
 
-    Player(coordVec coords, const cchar_t& symbol, WinObj* w);
-    ~Player();
-
-    void Move(int axisX=0, int axisY=0);
-    void Print();
-    void ReadLast();
-    bool ValidPos(int x, int y);
-    void PrintLast();
-
+  void Move(int axisX = 0, int axisY = 0);
+  void Print();
+  void ReadLast();
+  bool ValidPos(int x, int y);
+  void PrintLast();
 };
 
-#endif // PLAYER_HPP
+#endif  // PLAYER_HPP

@@ -1,40 +1,61 @@
-// #include <iostream>
-// #include <locale>
 // #include <ncurses.h>
-// #include <wchar.h>
-
-// void print(WINDOW* w, int x, int y, cchar_t* wideChar, int n) {
-//     for (int i = 0; i < n; ++i) {
-//         mvwadd_wch(w, y, x + i, &wideChar[i]);
-//     }
-// }
 
 // int main() {
+//     // Initialize ncurses
 //     initscr();
-//     start_color(); 
-//     use_default_colors();
-//     std::locale::global(std::locale(""));
+//     cbreak();
+//     noecho();
 
-//     // Set the boat emoji
-//     wchar_t boatEmoji = L'🛥';
-//     cchar_t wideChar;
-//     attr_t attributes = A_NORMAL;
-//     setcchar(&wideChar, &boatEmoji, attributes, 0, NULL);
-
-//     // Print boats across the screen
-//     for (int x = 1; x < 20; x+=2) {
-//         for (int y = 1; y < 10; ++y) {
-//             print(stdscr, x, y, &wideChar, 1);
-//         }
+//     // Check for color support
+//     if (!has_colors()) {
+//         printw("Your terminal does not support color.\n");
+//         endwin();
+//         return 1;
 //     }
-    
-//     // Read a boat emoji from a specific position
-//     cchar_t readChar;
-//     mvwin_wch(stdscr, 6, 3, &readChar);
-//     mvwadd_wch(stdscr, 14, 14, &readChar);
 
+//     // Enable color mode
+//     start_color();
+
+//     // Create a window
+//     WINDOW *win = newwin(10, 20, 5, 5);
+//     box(win, 0, 0); // Draw a border around the window
+//     wrefresh(win);
+
+//     // Set up some color pairs
+//     init_pair(1, COLOR_RED, COLOR_GREEN); // Example color pair
+
+//     // Set the background color at a specific position
+//     wbkgd(win, COLOR_PAIR(1)); // Set the background color of the window to
+//     the example color pair
+
+//     // Refresh the window to show the background color
+//     wrefresh(win);
+
+//     // Get the background color of a character at a specific position
+//     attron(COLOR_PAIR(1));
+//     int x = 2;
+//     int y = 2;
+//     chtype ch = mvwinch(win, y, x);
+//     int color_pair = PAIR_NUMBER(ch & A_COLOR); // Extract color pair number
+//     from attributes short fg_color, bg_color; pair_content(color_pair,
+//     &fg_color, &bg_color); // Get foreground and background color numbers
+//     init_pair(2, bg_color, fg_color);
+//     printw("Background color at position (%d, %d):\n", x, y);
+//     attroff(COLOR_PAIR(1));
+//     attron(COLOR_PAIR(2));
+//     printw("Color pair number: %d\n", color_pair);
+//     printw("Background color number: %d\n", bg_color);
+//     printw("Foreground color number: %d\n", fg_color);
+//     attroff(COLOR_PAIR(2));
+
+//     // Refresh the standard screen to show the output
 //     refresh();
+
+//     // Wait for a key press before exiting
 //     getch();
+
+//     // Clean up
+//     delwin(win);
 //     endwin();
 
 //     return 0;
