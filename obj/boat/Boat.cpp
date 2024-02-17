@@ -4,8 +4,8 @@
 
 Boat::Boat(coordVec coords, const cchar_t& symbol, WinObj* w)
     : Obj(coords, symbol, w) {
-  // ReadLast();
-  Print();
+
+  //Print();
 }
 
 Boat::~Boat() {}
@@ -20,16 +20,42 @@ void Boat::Print() {
   wattroff(w->w, A_BOLD | COLOR_PAIR(2));
 }
 
-bool Boat::ValidPos(int x, int y) {
-  // Assuming you want to check if the position (x, y) is within the window
-  // boundaries You may need to implement your own validation logic here
-  return Obj::ValidPos(
-      x, y);  // Returning the result of the parent class validation function
-}
+bool Boat::ValidPos(int x, int y) { return Obj::ValidPos(x, y); }
 
-void Boat::Move(int axisX, int axisY) {
-  // Obj::Print();
-  // Implement the logic to move the boat here
-  // You may need to update the boat's coordinates and then call the Print
-  // function to redraw it Example: UpdateCoords(axisX, axisY); Print();
+void Boat::Move(coordVec coords) {
+  int axisY = 0, axisX = 0;
+  int ch = 0;
+  coords = coords;
+  while (true) {
+    if (axisY || axisX) {
+      if (ValidPos(axisX, axisY)) {
+        //PrintLast(axisX, axisY);
+        //ReadLast();
+        Print();
+        wrefresh(w->w);
+        refresh();
+      }
+    }
+
+    axisY = 0, axisX = 0;
+    ch = getch();
+
+    switch (ch) {
+      case KEY_UP:
+        axisY = -1;
+        break;
+      case KEY_DOWN:
+        axisY = 1;
+        break;
+      case KEY_LEFT:
+        axisX = -1;
+        break;
+      case KEY_RIGHT:
+        axisX = 1;
+        break;
+      case 'q':
+        endwin();
+        return;
+    }
+  }
 }

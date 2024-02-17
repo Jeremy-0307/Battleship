@@ -11,6 +11,7 @@ class Boat : public Obj {
   void Move(int axisX = 0, int axisY = 0);
   void Print();
   bool ValidPos(int x, int y);
+  void Move(coordVec coords);
 };
 
 #endif  // BOAT_HPP

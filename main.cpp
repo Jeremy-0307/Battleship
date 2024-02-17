@@ -71,8 +71,9 @@ int main() {
   WinObj main(height, width, start_y, start_x, bg);
 
   Player jeremy({{0, 0}}, p, &main);
-  Boat b({{1, 2}, {2, 2}}, boat, &main);
-  jeremy.Move(5, 5);
+  Boat b({{1, 2}, {2, 2}, {3, 2}, {3, 1}}, boat, &main);
+  jeremy.Move(0, 0);
+  b.Move(jeremy.coords);
   // b.Move(5, 5);
 
   refresh();
