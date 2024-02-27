@@ -1,4 +1,8 @@
 b main
-b Player.cpp:135
+b main.cpp:45
+display boat
+display b
+display p.chars
+display boat.chars
 run
 continue

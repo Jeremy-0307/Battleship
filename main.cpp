@@ -33,6 +33,7 @@ using coordVec = std::vector<coord>;
 int main() {
   std::locale::global(std::locale("en_US.UTF-8"));
   init();
+  std::locale::global(std::locale("en_US.UTF-8"));
 
   int hola = 0;
 
@@ -54,12 +55,11 @@ int main() {
   cchar_t boat;
   init_pair(2, COLOR_BLACK, COLOR_GREEN);
   boat.attr = A_BLINK | COLOR_PAIR(2);
-  boat.chars[0] = L'1';
-  boat.chars[1] = L'2';
-  boat.chars[2] = L'3';
-  boat.chars[3] = L'4';
+  boat.chars[0] = L'.';
+  boat.chars[1] = L'🛥';
+  boat.chars[2] = L' ';
+  boat.chars[3] = L' ';
 
-  //int prueba = boat.chars[1];
   int maxY = 0, maxX = 0;
   getmaxyx(stdscr, maxY, maxX);
 
@@ -72,13 +72,12 @@ int main() {
 
   Player jeremy({{0, 0}}, p, &main);
   Boat b({{1, 2}, {2, 2}, {3, 2}, {3, 1}}, boat, &main);
+  
+  //mvwadd_wch(stdscr, 1, 1, &boat);
   jeremy.Move(0, 0);
-  b.Move(jeremy.coords);
-  // b.Move(5, 5);
-
   refresh();
   wrefresh(main.w);
-
+  getch();
   endwin();
 };
 // 📍

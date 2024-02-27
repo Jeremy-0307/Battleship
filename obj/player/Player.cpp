@@ -6,7 +6,7 @@
 #include <queue>
 
 auto bfs(const WinObj* window, int targetValue, int startX, int startY) noexcept {
-//                                           abajo , arriba,  izq   , der   
+//                                           abajo ,  arriba, izq,     der   
   const std::pair<int, int> Directions[] = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
   std::queue<std::pair<int, int>> Queue;
   std::vector<std::pair<int, int>> Visited;
@@ -92,10 +92,10 @@ void Player::PrintLast() {
 
 void Player::Move(int axisX, int axisY) {
   int ch = 0;
-  this->coords = bfs(w, L'2', 1, 2);
+  //this->coords = bfs(w, L'2', 1, 2);
   //axisY = 1;
-  //while (true) {
-    //if (axisY || axisX) {
+  while (true) {
+    if (axisY || axisX) {
       if (ValidPos(axisX, axisY)) {
         PrintLast();
         ReadLast();
@@ -103,10 +103,10 @@ void Player::Move(int axisX, int axisY) {
         wrefresh(w->w);
         refresh();
       }
-    //}
+    }
 
     axisY = 0, axisX = 0;
-    //ch = getch();
+    ch = getch();
 
     switch (ch) {
       case KEY_UP:
@@ -125,5 +125,5 @@ void Player::Move(int axisX, int axisY) {
         endwin();
         return;
     }
-  //}
+  }
 }
