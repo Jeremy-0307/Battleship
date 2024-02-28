@@ -4,14 +4,8 @@
 #include "window/WinObj.hpp"
 //-----------------------------//
 #include <curses.h>
-#include <ncurses.h>
-
-#include <algorithm>  // for std::find
-#include <cstring>
-#include <cwchar>  // unicode
-#include <iostream>
 #include <locale>
-#include <string>
+#include <ncurses.h>
 #include <utility>
 #include <vector>
 
@@ -25,17 +19,16 @@ void init() {
   keypad(stdscr, TRUE);
 }
 
-extern auto bfs(WinObj* w, int value, int startX, int startY) noexcept;
-
 using coord = std::pair<int, int>;
 using coordVec = std::vector<coord>;
 
+
+extern coordVec bfs(const WinObj *window, int targetValue, int startX, int startY) noexcept;
+
 int main() {
+  int adios = 10;
   std::locale::global(std::locale("en_US.UTF-8"));
   init();
-  std::locale::global(std::locale("en_US.UTF-8"));
-
-  int hola = 0;
 
   cchar_t p;
   init_pair(1, COLOR_RED, COLOR_BLACK);
@@ -55,10 +48,10 @@ int main() {
   cchar_t boat;
   init_pair(2, COLOR_BLACK, COLOR_GREEN);
   boat.attr = A_BLINK | COLOR_PAIR(2);
-  boat.chars[0] = L'.';
+  boat.chars[0] = L'[';
   boat.chars[1] = L'🛥';
   boat.chars[2] = L' ';
-  boat.chars[3] = L' ';
+  boat.chars[3] = L']';
 
   int maxY = 0, maxX = 0;
   getmaxyx(stdscr, maxY, maxX);
@@ -70,14 +63,55 @@ int main() {
 
   WinObj main(height, width, start_y, start_x, bg);
 
-  Player jeremy({{0, 0}}, p, &main);
-  Boat b({{1, 2}, {2, 2}, {3, 2}, {3, 1}}, boat, &main);
-  
-  //mvwadd_wch(stdscr, 1, 1, &boat);
-  jeremy.Move(0, 0);
+  Player P({{0, 0}}, p, &main);
+  Boat B({{1, 2}, {2, 2}, {3, 2}, {3, 1}}, boat, &main);
+
+  bool cicle = true, MovingBoat = false;
+  coordVec temp, rotation;
+  while (cicle) {
+    int axisX = 0, axisY = 0;
+    int c = getch();
+    switch (c) {
+    case KEY_UP:
+      axisY = -1;
+      break;
+    case KEY_DOWN:
+      axisY = 1;
+      break;
+    case KEY_LEFT:
+      axisX = -1;
+      break;
+    case KEY_RIGHT:
+      axisX = 1;
+      break;
+    case 'a':
+      if (MovingBoat) {
+        rotation = B.Rotate();
+        P.coords = rotation;
+        B.coords = rotation;
+      }
+      break;
+    case 'b':
+      temp = P.coords;
+      P.coords = std::move(bfs(&main, L'🛥', P.coords[0].first, P.coords[0].second));
+      MovingBoat = true;
+      break;
+    case 'q':
+      endwin();
+      cicle = false;
+      break;
+    default:
+      break;
+    }
+    if (c != 'q') {
+      P.Move(axisX, axisY);
+      if (MovingBoat) {
+        B.Move(axisX, axisY);
+      }
+    }
+  }
   refresh();
   wrefresh(main.w);
-  getch();
   endwin();
 };
 // 📍

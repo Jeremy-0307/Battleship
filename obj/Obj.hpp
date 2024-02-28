@@ -5,30 +5,27 @@
 //------------------//
 #include <curses.h>
 #include <ncurses.h>
-
-#include <cwchar>
-#include <locale>
-#include <string>
 #include <utility>
+#include <tuple>
 #include <vector>
 
 using coord = std::pair<int, int>;
 using coordVec = std::vector<coord>;
 
 class Obj {
- public:
+public:
   coordVec coords;
   cchar_t symbol;
   int limx, limy;
-  WinObj* w;
+  WinObj *w;
 
-  Obj(coordVec coords, const cchar_t& symbol, WinObj* w);
+  Obj(coordVec coords, const cchar_t &symbol, WinObj *w);
   ~Obj();
 
-  bool ValidPos(int x, int y);
+  std::tuple<bool, coordVec> ValidPos(int x, int y);
   void Move();
   void Print();
   void ReadLastPos();
 };
 
-#endif  // OBJ_HPP
+#endif // OBJ_HPP

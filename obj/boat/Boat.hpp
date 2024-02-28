@@ -8,10 +8,13 @@ class Boat : public Obj {
   Boat(coordVec coords, const cchar_t& symbol, WinObj* w);
   ~Boat();
 
+  void ClearPos();
   void Move(int axisX = 0, int axisY = 0);
   void Print();
-  bool ValidPos(int x, int y);
+  auto ValidPos(int x, int y);
   void Move(coordVec coords);
+  coordVec Rotate();
+
 };
 
 #endif  // BOAT_HPP
