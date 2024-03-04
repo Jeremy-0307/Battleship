@@ -26,6 +26,8 @@ void Player::Print() {
     mvwprintw(w->w, y, 3 + x, "%lc", symbol.chars[3]);
     wattroff(w->w, A_BOLD | COLOR_PAIR(3));
   }
+  wrefresh(w->w);
+  refresh();
 }
 
 auto Player::ValidPos(int x, int y) { return Obj::ValidPos(x, y); }
@@ -59,8 +61,5 @@ void Player::Move(int axisX, int axisY) {
     coords = std::move(newCoords);
     PrintLast();
     ReadLast();
-    Print();
-    wrefresh(w->w);
-    refresh();
   }
 }

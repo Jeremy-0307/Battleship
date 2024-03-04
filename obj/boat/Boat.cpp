@@ -10,6 +10,8 @@ void Boat::Print() {
     int x = 1 + c.first * w->sizeStr;
     mvwprintw(w->w, y, x, "%ls", symbol.chars);
   }
+  wrefresh(w->w);
+  refresh();
 }
 
 Boat::Boat(coordVec coords, const cchar_t& symbol, WinObj* w)
@@ -41,22 +43,24 @@ void Boat::Move(int axisX, int axisY){
     wattron(w->w, A_BOLD | COLOR_PAIR(3));
     Print();
     wattroff(w->w, A_BOLD | COLOR_PAIR(3));
-    wrefresh(w->w);
-    refresh();
   }
 }
 
-coordVec Boat::Rotate() {
+coordVec Boat::Rotate(int side) {
     coordVec newCoords;
-    int anclaX = coords[0].first; 
-    int anclaY = coords[0].second; 
+    int anchorX = coords[0].first; 
+    int anchorY = coords[0].second; 
 
     for (const auto &c : coords) {
-      int newX = anclaX - (c.second - anclaY);
-      int newY = anclaY + (c.first - anclaX);
-
+      int newX = anchorX + (side * (c.second - anchorY));
+      int newY = anchorY - (side * (c.first - anchorX));
+      if (newX < 0 || newX > limx || newY < 0 || newY > limy) {
+        return {};
+      }
       newCoords.push_back({newX, newY});
     }
-  return newCoords;
+
+    return newCoords;
 }
+
 

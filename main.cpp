@@ -24,9 +24,9 @@ using coordVec = std::vector<coord>;
 
 
 extern coordVec bfs(const WinObj *window, int targetValue, int startX, int startY) noexcept;
+extern void printPos(std::vector<std::pair<int, int>>& pos);
 
 int main() {
-  int adios = 10;
   std::locale::global(std::locale("en_US.UTF-8"));
   init();
 
@@ -61,20 +61,20 @@ int main() {
   const int start_y = (maxY - height) / 2;
   const int start_x = (maxX - width) / 2;
 
-  WinObj main(height, width, start_y, start_x, bg);
+  WinObj mainScreen(height, width, start_y, start_x, bg);
 
-  Player P({{0, 0}}, p, &main);
-  Boat B({{1, 2}, {2, 2}, {3, 2}, {3, 1}}, boat, &main);
+  Player P({{0, 0}}, p, &mainScreen);
+  Boat B({{1, 2}, {2, 2}, {3, 2}, {3, 1}}, boat, &mainScreen);
 
   bool cicle = true, MovingBoat = false;
   coordVec temp, rotation;
   while (cicle) {
     int axisX = 0, axisY = 0;
+    mvprintw(10, 1, "MovingBoat: [%d]", MovingBoat);
     int c = getch();
     switch (c) {
     case KEY_UP:
-      axisY = -1;
-      break;
+      axisY = -1;break;
     case KEY_DOWN:
       axisY = 1;
       break;
@@ -86,15 +86,36 @@ int main() {
       break;
     case 'a':
       if (MovingBoat) {
-        rotation = B.Rotate();
-        P.coords = rotation;
-        B.coords = rotation;
+        rotation = B.Rotate(1);
+        if (!rotation.empty()) {
+          P.coords = rotation;
+          B.coords = rotation;
+        }
+      }
+      break;
+    case 'd':
+      if (MovingBoat) {
+        rotation = B.Rotate(-1);
+        if (!rotation.empty()) {
+          P.coords = rotation;
+          B.coords = rotation;
+        }
       }
       break;
     case 'b':
-      temp = P.coords;
-      P.coords = std::move(bfs(&main, L'🛥', P.coords[0].first, P.coords[0].second));
-      MovingBoat = true;
+      if (MovingBoat) {
+        P.coords = temp;
+        MovingBoat = false;
+        B.Print();
+      }
+      else{
+        temp = P.coords;
+        P.coords = bfs(&mainScreen, L'🛥', P.coords[0].first, P.coords[0].second);
+        mvprintw(9, 1, "Size: [%d]", P.coords.size());
+        if (!P.coords.empty()) {
+           MovingBoat = true;
+        } else { P.coords = temp; }
+      }
       break;
     case 'q':
       endwin();
@@ -104,14 +125,14 @@ int main() {
       break;
     }
     if (c != 'q') {
-      P.Move(axisX, axisY);
+       P.Move(axisX, axisY); 
       if (MovingBoat) {
         B.Move(axisX, axisY);
+      } else{
+        B.Print();
       }
+      P.Print();
     }
   }
-  refresh();
-  wrefresh(main.w);
   endwin();
 };
-// 📍

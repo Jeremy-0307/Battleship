@@ -9,13 +9,21 @@
 
 std::vector<std::pair<int, int>> bfs(const WinObj *window, int targetValue, int startX,
          int startY) noexcept {
-  /**                                       abaj ,  arrib,   izq,     der      **/
+  //                                        abaj      arrib   izq,     der      
   const std::pair<int, int> Directions[] = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
   std::queue<std::pair<int, int>> Queue;
   std::vector<std::pair<int, int>> Visited;
 
-  Queue.push({startX, startY});
-  Visited.push_back({startX, startY});
+  cchar_t first;
+  mvwin_wch(window->w, 1+startY, 2+startX*window->sizeStr, &first);
+  mvprintw(12, 1, "[%lc] .vs [%lc]", first.chars[0], targetValue);
+
+  if (first.chars[0] == targetValue) {
+    Queue.push({startX, startY});
+    Visited.push_back({startX, startY});
+  } else {
+    return {};
+  }
 
   while (!Queue.empty()) {
     int currentX = 2 + Queue.front().first * window->sizeStr,
@@ -43,4 +51,12 @@ std::vector<std::pair<int, int>> bfs(const WinObj *window, int targetValue, int 
     }
   }
   return Visited;
+}
+
+void printPos(std::vector<std::pair<int, int>>& pos) {
+  int cont = 0;
+  for(const auto& p : pos) {
+    //mvprintw(12, 1 + cont * 5, "[%d,%d]", p.first, p.second);
+    cont++;
+  }
 }

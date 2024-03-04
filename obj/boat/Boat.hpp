@@ -13,7 +13,7 @@ class Boat : public Obj {
   void Print();
   auto ValidPos(int x, int y);
   void Move(coordVec coords);
-  coordVec Rotate();
+  coordVec Rotate(int side);
 
 };
 

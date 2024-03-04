@@ -22,6 +22,6 @@ WinObj::WinObj(int height, int width, int x, int y, const cchar_t& s)
   }
 }
 
-WinObj::~WinObj() {}
+WinObj::~WinObj() { delwin(w); }
 
 void WinObj::CheckSize(/*int x, int y*/) {}
