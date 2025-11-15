@@ -1,0 +1,14 @@
+[
+  {
+    "label": "debug battleship",
+    "build": {
+      "command": "make clean && make",
+      "args": ["-j8"],
+      "cwd": "$ZED_WORKTREE_ROOT"
+    },
+    "program": "$ZED_WORKTREE_ROOT/bin/battleship",
+    "request": "launch",
+    "adapter": "CodeLLDB",
+    "cwd": "$ZED_WORKTREE_ROOT" // optional but nice
+  }
+]
