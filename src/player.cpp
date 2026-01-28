@@ -4,7 +4,7 @@ void movePlayer(WINDOW* w) {
     int ch = 0, horizontal = 0, vertical = 0;
     int x = 0, y = 0;
     while ((ch = getch()) != 'q') {
-        int x = 0, y = 0;
+        x = 0, y = 0;
         switch (ch) {
             case KEY_UP:
             case 'w':
@@ -25,10 +25,10 @@ void movePlayer(WINDOW* w) {
             default:
                 break;
         }
-        mvwaddstr(w, vertical * BOARD_ROWS, (horizontal * BOARD_COLS)-1, " . " );
-        vertical   = std::clamp(vertical+y,   1, 10);
-        horizontal = std::clamp(horizontal+x, 1, 10);
-        mvwaddstr(w, vertical * BOARD_ROWS, (horizontal * BOARD_COLS)-1, "[.]" );
+        mvwaddstr(w, vertical * BOARD_ROWS, (horizontal * BOARD_COLS)-2, " . " );
+        vertical   = std::clamp(vertical + y,   1, 10);
+        horizontal = std::clamp(horizontal + x, 1, 10);
+        mvwaddstr(w, vertical * BOARD_ROWS, (horizontal * BOARD_COLS)-2, "[.]" );
         wrefresh(w);
     }
 }
