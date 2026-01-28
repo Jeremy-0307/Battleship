@@ -1,28 +1,34 @@
-// n() {
-//     initscr();
-//     keypad(stdscr, TRUE);
-//     noecho();
-//     curs_set(0);
+#include "../include/player.hpp"
 
-//     WINDOW* boatMenu = nullptr;
-
-//     int user_x = (initX + (SIZEBOARD + 1) /2 * BOARD_COLS) - 1;
-//     int user_y =  initY + (SIZEBOARD + 1) /2 * BOARD_ROWS;
-//     int key;
-
-//     mvprintw(2, 5, "user_x[%d], user_y[%d]",user_x, user_y);
-//     do {
-//         refresh();
-//         key = getch();
-//         #if DEBUG
-//             mvprintw(2, 5, "user_x[%d], user_y[%d]",user_x, user_y);
-//             //user_x += 1 * BOARD_COLS;
-//         #endif
-//         mvprintw(user_y, user_x, " . ");
-//         move(&user_x, &user_y, &key);
-//         mvprintw(user_y, user_x, "[A]");
-//     } while (key != 'q');
-
-//     endwin();
-//     return 0;
-// }
+void movePlayer(WINDOW* w) {
+    int ch = 0, horizontal = 0, vertical = 0;
+    int x = 0, y = 0;
+    while ((ch = getch()) != 'q') {
+        int x = 0, y = 0;
+        switch (ch) {
+            case KEY_UP:
+            case 'w':
+                y--;
+                break;
+            case KEY_DOWN:
+            case 's':
+                y++;
+                break;
+            case KEY_LEFT:
+            case 'a':
+                x--;
+                break;
+            case KEY_RIGHT:
+            case 'd':
+                x++;
+                break;
+            default:
+                break;
+        }
+        mvwaddstr(w, vertical * BOARD_ROWS, (horizontal * BOARD_COLS)-1, " . " );
+        vertical   = std::clamp(vertical+y,   1, 10);
+        horizontal = std::clamp(horizontal+x, 1, 10);
+        mvwaddstr(w, vertical * BOARD_ROWS, (horizontal * BOARD_COLS)-1, "[.]" );
+        wrefresh(w);
+    }
+}

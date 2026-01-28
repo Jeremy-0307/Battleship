@@ -2,7 +2,6 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-// Internal state (only this TU sees these)
 static std::string boat_board[BOARD_SIZE][BOARD_SIZE];
 static std::string attack_board[BOARD_SIZE][BOARD_SIZE];
 
@@ -38,26 +37,22 @@ pair<int, int> setMenuXY(const BoatList& boats) {
     int total_rows = biggestBoat + 4;
 
     int initX = (max_x - total_cols) / 2;
-    int initY = (max_y - total_rows) / 2;  // <- FIX HERE
+    int initY = (max_y - total_rows) / 2;
 
     return {initX, initY};
 }
 
-void drawBoard(const int initX, const int initY) {
-    int screenCOL, screenROW;
+void drawBoard(WINDOW* w,const int initX, const int initY) {
     for (int column = 0; column <= BOARD_SIZE; ++column) {
         for (int row = 0; row <= BOARD_SIZE; ++row) {
-            screenCOL = initX + (column * BOARD_COLS);
-            screenROW = initY + (row * BOARD_ROWS);
-
-            if (row == 0 && column == 0) {
-                continue;
-            } else if (column == 0) {
-                mvprintw(screenROW, screenCOL, "%d", row - 1);
-            } else if (row == 0) {
-                mvprintw(screenROW, screenCOL, "%c", 'A' + (column - 1));
-            } else {
-                mvprintw(screenROW, screenCOL, "%s", EMPTY);
+            if (row == 0 && column >= 1) {
+                mvwaddch(w, column * BOARD_ROWS, row, '0' + (column - 1));
+            }
+            else if (column == 0 && row >= 1) {
+                mvwaddch(w, column, row * BOARD_COLS, 'A' + (row - 1));
+            }
+            else if (column != 0 && row != 0) {
+                 mvwaddch(w, column * BOARD_ROWS, row * BOARD_COLS, '.');
             }
         }
         printw("\n");

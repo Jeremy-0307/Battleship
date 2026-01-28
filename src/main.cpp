@@ -5,6 +5,8 @@
 #include <unistd.h>
 
 #include "../include/screen.hpp"
+#include "../include/player.hpp"
+
 
 using std::pair;
 using BoatList = std::vector<std::pair<int, std::string>>;
@@ -26,14 +28,15 @@ int main() {
 
     const pair<int, int> boardCoords = setBoardXY();
     WINDOW* boardWin = initNewin(
-        BOARD_SIZE * BOARD_ROWS,
-        BOARD_SIZE * BOARD_COLS,
+        BOARD_SIZE * (BOARD_ROWS)+BOARD_ROWS+1,
+        BOARD_SIZE * (BOARD_COLS)+BOARD_COLS,
         boardCoords.first, boardCoords.second);
-    box(boardWin, 0, 0);
     wrefresh(boardWin);
-    drawBoard(boardCoords.first, boardCoords.second);
+    drawBoard(boardWin, boardCoords.first, boardCoords.second);
+    wrefresh(boardWin);
 
-    int key = getch();
+
+    movePlayer(boardWin);
 
     delwin(boardWin);
     endwin();
