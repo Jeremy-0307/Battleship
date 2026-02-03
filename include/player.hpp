@@ -11,3 +11,6 @@
 #define EMPTY "."
 
 void movePlayer(WINDOW* w);
+
+void pickBoat(WINDOW* w, std::vector<std::pair<int,std::string>> boats);
+void moveBoat(WINDOW* w);

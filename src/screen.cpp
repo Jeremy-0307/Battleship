@@ -5,6 +5,15 @@ static std::string attack_board[BOARD_SIZE][BOARD_SIZE];
 
 int max_x = 0, max_y = 0;
 
+void highligher(WINDOW* w, char c, std::vector<pair<int, int>> Coords, short color) {
+    init_pair(1, color, -1);
+    wattron(w, COLOR_PAIR(1));
+    for (auto a: Coords) {
+        mvwaddch(w, a.second, a.first, c);
+    }
+    wattroff(w, COLOR_PAIR(1));
+}
+
 WINDOW* initNewin(int h, int w, int startX, int startY) {
     WINDOW* window = newwin(h, w, startY, startX);
     box(window, 0, 0);
@@ -24,9 +33,9 @@ pair<int, int> setBoardXY() {
     return {initX, initY};
 }
 
-pair<int, int> setBoatMenuXY(const BoatList& boats, const pair<int, int>& boardXY) {
-    int quantBoats = static_cast<int>(boats.size());
-    int menuX = boardXY.first - (quantBoats + 1) * BOARD_COLS;
+pair<int, int> setBoatMenuXY(const int bWidth, const int quantBoats, const pair<int, int>& boardXY) {
+
+    int menuX = boardXY.first - (bWidth + (quantBoats + 1) * 2);
     int menuY = boardXY.second;
     return {menuX, menuY};
 }
@@ -51,24 +60,31 @@ void drawBoard(WINDOW* w) {
     }
 }
 
-void drawBoatMenu(WINDOW* w, const BoatList& boats) {
-    const int bSize = boats.size();
+void drawBoatMenu(WINDOW* w, const vector<boat>& boats) {
 
-    for (int column = 0; column < bSize; ++column) {
-        int x = HEADER_COLS + column * BOARD_COLS;
+    auto xWidthCounter = 0;
+    auto x = 0;
+    auto bWidth = 0;
+    for(int i = 0; i < static_cast<int>(boats.size()); ++i) {
+        auto [minX, maxX] = std::minmax_element(
+            boats[i].first.begin(), boats[i].first.end(),
+            [](const auto& a, const auto& c){ return a.first < c.first; }
+        );
 
-        mvwaddch(w, 0, x, '0' + column);
+        xWidthCounter += 2;
+        for(auto c : boats[i].first) {
+            mvwaddch(w, 3 + c.second,  xWidthCounter + c.first, boats[i].second );
+        }
+        bWidth = (maxX->first - minX->first) + 1;
+        xWidthCounter += bWidth;
+
+        x = HEADER_COLS + bWidth * BOARD_COLS;
+
+        mvwaddch(w, 0, x, '0' + static_cast<char>(i));
         mvwaddch(w, 1, x, 'v');
 
-        int sizeBoat = boats[column].first + 3;
-
-        for (int y = 3; y <= sizeBoat; ++y) {
-            mvwaddch(w, y, x, 'O');
-        }
     }
 }
-
-
 
 void initmenu() {
 }
