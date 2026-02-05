@@ -16,16 +16,14 @@
 #define BOARD_ROWS 2
 #define EMPTY "."
 
-// Boat Menu Screen
-#define MAX_WITDH 20
+WINDOW* initWin(int h, int w, int x, int y);
+WINDOW* initBoard(const xy& origin);
+WINDOW* initMenu(const xy& boardOrigin);
 
-using std::vector;
-using std::pair;
+xy getBoardOrigin();
+xy getMenuOrigin(const xy& boardOrigin);
 
-WINDOW* initNewin(int h, int w, int starty, int startx);
-
-pair<int, int> setBoardXY();
-pair<int, int> setBoatMenuXY(const int bWidth, const int quantBoats, const pair<int, int>& boardXY);
+void highligher(WINDOW* w, char c, vector<xy> Coords, short color);
 void drawBoard(WINDOW* w);
-void drawBoatMenu(WINDOW* w, const vector<boat>& boats);
+void drawMenu(WINDOW* w);
 void initmenu();
