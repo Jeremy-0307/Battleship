@@ -3,16 +3,14 @@
 ## Por hacer
 
 1. modificar para permitir multiples formas de botes
-  - caja de seleccion de bote
-  - mover bote
+  - que los botes se stackean verticalmente
 
 2. highligher functoin
 
 
-
 ## Logica del juego y estructura de archivos
 
-## main
+## Main
 
 initncurses(); // para iniciar ncurses
 initgame() {

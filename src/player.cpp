@@ -1,78 +1,127 @@
-// #include "../include/player.hpp"
-// #include "../include/boat.hpp"
+#include "../include/player.hpp"
+
+int pickBoat(WINDOW* w, vector<pair<vector<xy>, bool>>& bMenu) {
+    int curr = 0, prev = 0, ch = 0;
+    while (!bMenu[curr].second)
+        curr = (curr + 1) % bQuant;
+
+    do {
+        prev = curr;
+        switch (ch) {
+            case KEY_LEFT: case 'a': case 'A':
+                do {
+                    curr = (curr - 1 + bQuant) % bQuant;
+                } while (!bMenu[curr].second);
+                break;
+            case KEY_RIGHT: case 'd': case 'D':
+                do {
+                    curr = (curr + 1) % bQuant;
+                } while (!bMenu[curr].second);
+                break;
+        }
+
+        draw(w, bMenu[prev].first, BCH, 1);
+        draw(w, bMenu[curr].first, BCH, 2);
+        wrefresh(w);
+
+        ch = wgetch(w);
+
+    } while (ch != '\n');
+
+    bMenu[curr].second = false;
+    return curr;
+}
+
+vector<xy> bTransform(vector<xy> pts) {
+    for (auto& p : pts) {
+        p.x = p.x * BOARD_COLS + HEADER_COLS;
+        p.y = p.y * BOARD_ROWS + BOARD_ROWS;
+    }
+    return pts;
+}
+
+void applyOffset(vector<xy>& pts, xy d) {
+    for (auto& p : pts) {
+        p.x += d.x;
+        p.y += d.y;
+    }
+}
+
+xy pivotOf(const vector<xy>& pts) {
+    return pts.front();   // first point as pivot (grid space)
+}
 
 
-// void pickBoat(WINDOW* w, std::vector<std::pair<int,std::string>> boats) {
-//     auto ch = 0, cantBoats = static_cast<int>(boats.size());
-//     int horizontal = 0;
-//     int delta = 0;
-//     int pos = 0;
+vector<xy> rotateRight(const vector<xy>& pts, xy pivot) {     // 90° CW
+    vector<xy> out = pts;
+    for (auto& p : out) {
+        int x = p.x - pivot.x;
+        int y = p.y - pivot.y;
+        p.x = pivot.x + y;
+        p.y = pivot.y - x;
+    }
+    return out;
+}
 
-//     init_pair(1, COLOR_RED, -1);
+vector<xy> rotateLeft(const vector<xy>& pts, xy pivot) {      // 90° CCW
+    vector<xy> out = pts;
+    for (auto& p : out) {
+        int x = p.x - pivot.x;
+        int y = p.y - pivot.y;
+        p.x = pivot.x - y;
+        p.y = pivot.y + x;
+    }
+    return out;
+}
 
-//     keypad(w, TRUE);
+void moveBoat(WINDOW* w, vector<xy>& pts, chtype bchar) {
+    xy offset{0, 0}, prevOffset{0, 0};
+    int ch = 0;
+    int limit = BOARD_SIZE - 1;
 
-//     while ((ch = wgetch(w)) != '\n') {
-//         delta = 0;
-//         mvwaddch(w, 0, HEADER_COLS + horizontal * BOARD_COLS , 48 + horizontal);
-//         switch (ch) {
-//             case KEY_LEFT:
-//             case 'a':
-//             case 'A':
-//                 delta = -1;
-//                 break;
+    do {
+        draw(w, bTransform(pts), EMPTY, 1);
 
-//             case KEY_RIGHT:
-//             case 'd':
-//             case 'D':
-//                 delta = 1;
-//                 break;
+        xy nextOffset = offset;
+        vector<xy> trial = pts;
+        bool rotated = false;
 
-//             default:
-//                 break;
-//         }
+        switch (ch) {
+            case KEY_LEFT:  case 'a': case 'A': nextOffset.x--; break;
+            case KEY_RIGHT: case 'd': case 'D': nextOffset.x++; break;
+            case KEY_UP:    case 'w': case 'W': nextOffset.y--; break;
+            case KEY_DOWN:  case 's': case 'S': nextOffset.y++; break;
+            case 'e': case 'E':
+                trial = rotateRight(pts, pivotOf(pts));
+                rotated = true;
+                break;
 
-//         horizontal = std::clamp(horizontal + delta, 0, cantBoats - 1);
-//         pos = HEADER_COLS + horizontal * BOARD_COLS;
+            case 'q': case 'Q':
+                trial = rotateLeft(pts, pivotOf(pts));
+                rotated = true;
+                break;
+        }
 
-//         wattron(w, COLOR_PAIR(1));
-//         mvwaddch(w, 0, pos, 48 + horizontal);
-//         wattroff(w, COLOR_PAIR(1));
+        nextOffset.x = std::clamp(nextOffset.x, 0, limit);
+        nextOffset.y = std::clamp(nextOffset.y, 0, limit);
 
-//        // boatHighlighter(w, {2, pos}, boats[horizontal].first, {1, 0});
-//         wrefresh(w);
-//     }
-// }
+        if (!rotated) {
+            applyOffset(trial, {
+                nextOffset.x - prevOffset.x,
+                nextOffset.y - prevOffset.y
+            });
+        }
 
-// void movePlayer(WINDOW* w) {
-//     int ch = 0, horizontal = 0, vertical = 0;
-//     int x = 0, y = 0;
-//     while ((ch = getch()) != 'q') {
-//         x = 0, y = 0;
-//         switch (ch) {
-//             case KEY_UP:
-//             case 'w':
-//                 y--;
-//                 break;
-//             case KEY_DOWN:
-//             case 's':
-//                 y++;
-//                 break;
-//             case KEY_LEFT:
-//             case 'a':
-//                 x--;
-//                 break;
-//             case KEY_RIGHT:
-//             case 'd':
-//                 x++;
-//                 break;
-//             default:
-//                 break;
-//         }
-//         mvwaddstr(w, vertical * BOARD_ROWS, (horizontal * BOARD_COLS)-2, " . " );
-//         vertical   = std::clamp(vertical + y,   1, 10);
-//         horizontal = std::clamp(horizontal + x, 1, 10);
-//         mvwaddstr(w, vertical * BOARD_ROWS, (horizontal * BOARD_COLS)-2, "[.]" );
-//         wrefresh(w);
-//     }
-// }
+        if (checkValid(w, trial, limit)) {
+            pts = std::move(trial);
+            if (!rotated) {
+                offset = nextOffset;
+                prevOffset = offset;
+            }
+        }
+
+        draw(w, bTransform(pts), bchar, 2);
+        wrefresh(w);
+
+    } while ((ch = wgetch(w)) != '\n');
+}

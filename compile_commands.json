@@ -1,0 +1,11 @@
+{
+  "arguments": [
+    "g++",
+    "-std=c++20",
+    "-Iinclude",
+    "-Wall",
+    "-Wextra"
+  ],
+  "file": "src/player.cpp"
+}
+

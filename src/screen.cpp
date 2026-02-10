@@ -1,13 +1,33 @@
 #include "../include/screen.hpp"
 #include <cstdio>
 
-void highligher(WINDOW* w, char c, vector<xy> Coords, short color) {
-    init_pair(1, color, -1);
-    wattron(w, COLOR_PAIR(1));
-    for (auto a: Coords) {
-        mvwaddch(w, a.y, a.x, c);
+/******************** DRAW SCREEN ********************/
+
+bool checkValid(WINDOW* w, const vector<xy>& pts, int limit) {
+    for (const auto& p : pts) {
+        // grid bounds
+        if (p.x < 0 || p.x > limit || p.y < 0 || p.y > limit)
+            return false;
+
+        int sy = p.y * BOARD_ROWS + BOARD_ROWS;
+        int sx = p.x * BOARD_COLS + HEADER_COLS;
+
+        chtype cell = mvwinch(w, sy, sx);
+        char c = cell & A_CHARTEXT;
+
+        if (c != EMPTY)  // collision with something already drawn
+            return false;
     }
-    wattroff(w, COLOR_PAIR(1));
+    return true;
+}
+
+
+void draw(WINDOW* w, const vector<xy>& pts, char ch, int colorID) {
+    wattron(w, COLOR_PAIR(colorID));
+    for (auto c: pts) {
+        mvwaddch(w, c.y, c.x, ch);
+    }
+    wattron(w, COLOR_PAIR(colorID));
 }
 
 WINDOW* initWin(int h, int w, int x, int y) {
@@ -17,7 +37,6 @@ WINDOW* initWin(int h, int w, int x, int y) {
 }
 
 /******************** MAIN SCREEN ********************/
-
 WINDOW* initBoard(const xy& origin) {
     WINDOW* w = initWin(
         BOARD_SIZE * BOARD_ROWS + BOARD_ROWS + 1,
@@ -44,7 +63,7 @@ void drawBoard(WINDOW* w) {
     int x = 0, y = 0;
     for (int row = 0; row <= BOARD_SIZE; ++row) {
         for (int column = 0; column <= BOARD_SIZE; ++column) {
-            x = 2 + (column - 1) * BOARD_COLS;
+            x = HEADER_COLS + (column - 1) * BOARD_COLS;
             y = BOARD_ROWS + (row - 1) * BOARD_ROWS;
 
             if (column == 0 && row >= 1) {
@@ -61,7 +80,6 @@ void drawBoard(WINDOW* w) {
 }
 
 /******************** Boat SCREEN ********************/
-
 WINDOW* initMenu(const xy& boardOrigin) {
     WINDOW* w = initWin(
         BOARD_SIZE * BOARD_ROWS + BOARD_ROWS + 1,
@@ -76,27 +94,37 @@ xy getMenuOrigin(const xy& boardOrigin) {
     return {x, y};
 }
 
-void drawMenu(WINDOW* w) {
+vector<pair<vector<xy>,bool>> drawMenu(WINDOW* w) {
     int currbWidth = 0;
+    vector<pair<vector<xy>, bool>> bMenu;
 
-    for (std::size_t i = 0; i < boats.size(); ++i) {
-        const auto& cells = boats[i].first;
-        const chtype symbol = static_cast<chtype>(boats[i].second);
+    for (std::size_t i = 0; i < bQuant; ++i) {
+        const auto& bCoords = boats[i].first;
 
         auto [minX, maxX] = std::minmax_element(
-            cells.begin(), cells.end(),
-            [](const auto& a, const auto& c) {
+            bCoords.begin(), bCoords.end(),
+            [](const xy& a, const xy& c) {
                 return a.x < c.x;
             }
         );
+
         currbWidth += 2;
-        for (const auto& b : cells) {
-            mvwaddch(w, 3 + b.y, currbWidth + b.x, symbol);
+        mvwaddch(w, 0, currbWidth + (maxX->x / 2), static_cast<chtype>('0' + i));
+
+        vector<xy> bCurr;
+        bCurr.reserve(bCoords.size());
+
+        for (const auto& b : bCoords) {
+            xy shifted{ b.x + currbWidth, b.y + 3 };
+            bCurr.push_back(shifted);
+            mvwaddch(w, shifted.y, shifted.x, BCH);
         }
+
+        bMenu.push_back({std::move(bCurr), true});
         currbWidth += (maxX->x - minX->x) + 1;
     }
+    return bMenu;
 }
-
 
 void initmenu() {
 }

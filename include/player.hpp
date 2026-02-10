@@ -2,15 +2,13 @@
 
 #include "../include/screen.hpp"
 
-#include <string>
-#include <utility>
-#include <vector>
-#include <ncurses.h>
-#include <algorithm>
+#include "../include/player.hpp"
 
-#define EMPTY "."
+enum class Rot : int { R0=0, R90=1, R180=2, R270=3 };
 
-void movePlayer(WINDOW* w);
 
-void pickBoat(WINDOW* w, std::vector<std::pair<int,std::string>> boats);
-void moveBoat(WINDOW* w);
+int pickBoat(WINDOW* w, vector<pair<vector<xy>, bool>>& bMenu);
+
+void applyOffset(vector<xy>& pts, xy d);
+void moveBoat(WINDOW* w, vector<xy>& pts, chtype bchar);
+vector<xy> bTransform(vector<xy> pts);
