@@ -46,16 +46,21 @@ int main() {
     //  2.1     Make sure to put the boat on screen if possible (find first white space)
     //
     int curr = 0;
+
     do {
         curr = pickBoat(menuScreen, bMenu);
         std::size_t curr_t = static_cast<std::size_t>(curr);
+        draw(menuScreen, bMenu[curr_t].first, EMPTY_1);
+        moveBoat(boardScreen, boats[curr_t].first);
+        movePlayer(boardScreen, bMenu);
         if (curr == 27) {
+
             // move player across the board 'till
             // 1. he returns to Menu
             // 2. picks a boat
         } else {
-            draw(menuScreen, bMenu[curr_t].first, ' ');
-            moveBoat(boardScreen, boats[curr_t].first, BCH);
+            draw(menuScreen, bMenu[curr_t].first, EMPTY_1);
+            moveBoat(boardScreen, boats[curr_t].first);
         }
 
     } while (true);

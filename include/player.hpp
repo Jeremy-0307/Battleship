@@ -4,11 +4,8 @@
 
 #include "../include/player.hpp"
 
-enum class Rot : int { R0=0, R90=1, R180=2, R270=3 };
-
-
 int pickBoat(WINDOW* w, vector<pair<vector<xy>, bool>>& bMenu);
 
-void applyOffset(vector<xy>& pts, xy d);
-void moveBoat(WINDOW* w, vector<xy>& pts, chtype bchar);
+void moveBoat(WINDOW* w, vector<xy>& pts);
+void movePlayer(WINDOW* w, const vector<pair<vector<xy>, bool>>& bMenu);
 vector<xy> bTransform(vector<xy> pts);

@@ -26,7 +26,8 @@ int pickBoat(WINDOW* w, vector<pair<vector<xy>, bool>>& bMenu) {
 
         ch = wgetch(w);
 
-    } while (ch != '\n');
+    } while (ch != '\n' && ch != 27);
+    if(ch == 27) return 27;
 
     bMenu[curr].second = false;
     return curr;
@@ -40,88 +41,138 @@ vector<xy> bTransform(vector<xy> pts) {
     return pts;
 }
 
-void applyOffset(vector<xy>& pts, xy d) {
+void applyOffset(vector<xy>& pts, const xy& d) {
     for (auto& p : pts) {
         p.x += d.x;
         p.y += d.y;
     }
 }
 
-xy pivotOf(const vector<xy>& pts) {
-    return pts.front();   // first point as pivot (grid space)
+static inline xy deltaFromKey(int ch) {
+    switch (ch) {
+        case KEY_LEFT:  case 'a': case 'A': return {-1,  0};
+        case KEY_RIGHT: case 'd': case 'D': return { 1,  0};
+        case KEY_UP:    case 'w': case 'W': return { 0, -1};
+        case KEY_DOWN:  case 's': case 'S': return { 0,  1};
+        default: return {0, 0};
+    }
 }
 
+static inline int rotateFromKey(int ch) {
+    switch (ch) {
+        case 'e': case 'E': return  1;
+        case 'q': case 'Q': return -1;
+        default: return 0;
+    }
+}
 
-vector<xy> rotateRight(const vector<xy>& pts, xy pivot) {     // 90° CW
-    vector<xy> out = pts;
-    for (auto& p : out) {
+void rotate(bool clockwise, vector<xy>& point) {
+    const xy pivot = point[0];
+    for (auto& p : point) {
+        xy out{0,0};
         int x = p.x - pivot.x;
         int y = p.y - pivot.y;
-        p.x = pivot.x + y;
-        p.y = pivot.y - x;
-    }
-    return out;
-}
 
-vector<xy> rotateLeft(const vector<xy>& pts, xy pivot) {      // 90° CCW
-    vector<xy> out = pts;
-    for (auto& p : out) {
-        int x = p.x - pivot.x;
-        int y = p.y - pivot.y;
-        p.x = pivot.x - y;
-        p.y = pivot.y + x;
-    }
-    return out;
-}
-
-void moveBoat(WINDOW* w, vector<xy>& pts, chtype bchar) {
-    xy offset{0, 0}, prevOffset{0, 0};
-    int ch = 0;
-    int limit = BOARD_SIZE - 1;
-
-    do {
-        draw(w, bTransform(pts), EMPTY, 1);
-
-        xy nextOffset = offset;
-        vector<xy> trial = pts;
-        bool rotated = false;
-
-        switch (ch) {
-            case KEY_LEFT:  case 'a': case 'A': nextOffset.x--; break;
-            case KEY_RIGHT: case 'd': case 'D': nextOffset.x++; break;
-            case KEY_UP:    case 'w': case 'W': nextOffset.y--; break;
-            case KEY_DOWN:  case 's': case 'S': nextOffset.y++; break;
-            case 'e': case 'E':
-                trial = rotateRight(pts, pivotOf(pts));
-                rotated = true;
-                break;
-
-            case 'q': case 'Q':
-                trial = rotateLeft(pts, pivotOf(pts));
-                rotated = true;
-                break;
+        if (clockwise) {
+            out.x = pivot.x + y;
+            out.y = pivot.y - x;
+        } else {
+            out.x = pivot.x - y;
+            out.y = pivot.y + x;
         }
 
-        nextOffset.x = std::clamp(nextOffset.x, 0, limit);
-        nextOffset.y = std::clamp(nextOffset.y, 0, limit);
+        p = out;
+    }
+}
 
-        if (!rotated) {
-            applyOffset(trial, {
-                nextOffset.x - prevOffset.x,
-                nextOffset.y - prevOffset.y
-            });
+void movePlayer(WINDOW* w, const vector<pair<vector<xy>, bool>>& bMenu) {
+    keypad(w, TRUE);
+
+    vector<xy> pos = { {0, 0} }, tmp, screen = bTransform(pos);
+    xy move{0, 0};
+
+    const int limit = BOARD_SIZE - 1;
+    bool onBoat = false;
+
+    draw(w, { { screen[0].x - 1, screen[0].y } }, "[.]", 2);
+    wrefresh(w);
+
+    int ch;
+    while ((ch = wgetch(w)) != 27) {
+        if (ch == '\n' && onBoat) break;
+
+        move = deltaFromKey(ch);
+        if (move.x == 0 && move.y == 0) continue;
+
+        tmp = pos;
+        applyOffset(tmp, move);
+        if (!checkValid(w, tmp, limit)) continue;
+
+        if (onBoat) {
+            draw(w, screen, " o ", 1);
+            onBoat = false;
+        } else{
+            draw(w, { { screen[0].x - 1, screen[0].y } }, " . ", 1);
         }
 
-        if (checkValid(w, trial, limit)) {
-            pts = std::move(trial);
-            if (!rotated) {
-                offset = nextOffset;
-                prevOffset = offset;
+        auto g = bTransform(tmp);
+        chtype cell = mvwinch(w, g[0].y, g[0].x);
+        size_t i = 0;
+
+        if ((cell & A_CHARTEXT) == BCH[0]) {
+            tmp = boats[boatCoords(w, tmp[0])].first;
+            onBoat = true;
+            if (ch == 27) { // ENTER
+                //for (const auto& p : pos) --p.x;
+                moveBoat(w, tmp);
+
+            } else { // JUST PASSING TRU
+
+                pos = std::move(tmp);
+                screen = bTransform(pos);
+                for (auto& p : screen) --p.x;
+                draw(w, screen, "[o]", 2);
             }
+        } else {
+            pos = std::move(tmp);
+            screen = bTransform(pos);
+            draw(w, { { screen[0].x - 1, screen[0].y } }, "[.]", 2);
         }
 
-        draw(w, bTransform(pts), bchar, 2);
         wrefresh(w);
+    }
+}
 
-    } while ((ch = wgetch(w)) != '\n');
+void moveBoat(WINDOW* w, vector<xy>& pos) {
+    keypad(w, TRUE);
+    const int limit = BOARD_SIZE - 1;
+
+    draw(w, bTransform(pos), BCH, 2);
+    wrefresh(w);
+
+    int ch = 0;
+    while ((ch = wgetch(w)) != '\n') {
+        const xy move = deltaFromKey(ch);
+        const int rot = rotateFromKey(ch);
+
+        if (rot == 0 && move.x == 0 && move.y == 0) continue;
+
+        draw(w, bTransform(pos), ".", 1);
+
+        auto tmp = pos;
+
+        if (rot != 0) {
+            const bool clockwise = (rot == -1);
+            rotate(clockwise, tmp);
+        } else {
+            applyOffset(tmp, move);
+        }
+
+        if (checkValid(w, tmp, limit)) {
+
+            pos = std::move(tmp);
+        }
+        draw(w, bTransform(pos), BCH, 2);
+        wrefresh(w);
+    }
 }

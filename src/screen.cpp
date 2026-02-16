@@ -5,29 +5,31 @@
 
 bool checkValid(WINDOW* w, const vector<xy>& pts, int limit) {
     for (const auto& p : pts) {
-        // grid bounds
-        if (p.x < 0 || p.x > limit || p.y < 0 || p.y > limit)
+        if (p.x < 0 || p.x > limit || p.y < 0 || p.y > limit){
             return false;
-
-        int sy = p.y * BOARD_ROWS + BOARD_ROWS;
-        int sx = p.x * BOARD_COLS + HEADER_COLS;
-
-        chtype cell = mvwinch(w, sy, sx);
-        char c = cell & A_CHARTEXT;
-
-        if (c != EMPTY)  // collision with something already drawn
-            return false;
+        }
     }
     return true;
 }
 
+void draw(WINDOW* w, const vector<xy>& pts, const char* str, int colorID) {
+    wattron(w, COLOR_PAIR(colorID));
 
-void draw(WINDOW* w, const vector<xy>& pts, char ch, int colorID) {
-    wattron(w, COLOR_PAIR(colorID));
-    for (auto c: pts) {
-        mvwaddch(w, c.y, c.x, ch);
+    for (const auto& p : pts) {
+        mvwaddstr(w, p.y, p.x, str);
     }
-    wattron(w, COLOR_PAIR(colorID));
+
+    wattroff(w, COLOR_PAIR(colorID));
+}
+
+int boatCoords(WINDOW* w, const xy& c) {
+    for (int i = 0; i < bQuant; ++i) {
+        for (const auto& p : boats[i].first) {
+            if (p.x == c.x && p.y == c.y) {
+                return i;
+            }
+        }
+    }
 }
 
 WINDOW* initWin(int h, int w, int x, int y) {
@@ -117,7 +119,7 @@ vector<pair<vector<xy>,bool>> drawMenu(WINDOW* w) {
         for (const auto& b : bCoords) {
             xy shifted{ b.x + currbWidth, b.y + 3 };
             bCurr.push_back(shifted);
-            mvwaddch(w, shifted.y, shifted.x, BCH);
+            mvwaddstr(w, shifted.y, shifted.x, BCH);
         }
 
         bMenu.push_back({std::move(bCurr), true});

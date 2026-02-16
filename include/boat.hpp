@@ -8,8 +8,9 @@
 #include <vector>
 #include <ncurses.h>
 #include <algorithm>
+#include <ranges>
 
-#define BCH 'o'
+constexpr const char* BCH = "o";
 
 using std::pair;
 using std::vector;
@@ -17,7 +18,7 @@ struct xy {
     int x = 0;
     int y = 0;
 };
-using boat = pair<vector<xy>, char>;
+using boat = pair<vector<xy>, const char*>;
 
 // Empiezan de 0,0
 // ----------------------------------

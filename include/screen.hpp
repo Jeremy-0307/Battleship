@@ -13,19 +13,21 @@
 #define BOARD_COLS 4
 #define BOARD_ROWS 2
 #define HEADER_COLS 3
-#define EMPTY '.'
+#define EMPTY_1 " "
+#define EMPTY_2 "."
 
-WINDOW* initWin(int h, int w, int x, int y);
 WINDOW* initBoard(const xy& origin);
 WINDOW* initMenu(const xy& boardOrigin);
 
 xy getBoardOrigin();
 xy getMenuOrigin(const xy& boardOrigin);
 
-void draw(WINDOW* w, const vector<xy>& pts, char ch = EMPTY, int colorID = 1);
-void drawBoard(WINDOW* w);
 void initmenu();
+void drawBoard(WINDOW* w);
+void draw(WINDOW* w, const vector<xy>& pts, const char* ch, const int colorID = 1);
 
 vector<pair<vector<xy>,bool>> drawMenu(WINDOW* w);
 
 bool checkValid(WINDOW* w, const vector<xy>& pts, int limit);
+
+int boatCoords(WINDOW* w, const xy& c);
