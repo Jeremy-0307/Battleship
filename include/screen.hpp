@@ -28,6 +28,6 @@ void draw(WINDOW* w, const vector<xy>& pts, const char* ch, const int colorID = 
 
 vector<pair<vector<xy>,bool>> drawMenu(WINDOW* w);
 
-bool checkValid(WINDOW* w, const vector<xy>& pts, int limit);
+bool checkValid(WINDOW* w, const vector<xy>& pts, int limit, bool checkBoat = false);
 
 int boatCoords(WINDOW* w, const xy& c);

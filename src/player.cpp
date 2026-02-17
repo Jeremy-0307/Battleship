@@ -48,7 +48,7 @@ void applyOffset(vector<xy>& pts, const xy& d) {
     }
 }
 
-static inline xy deltaFromKey(int ch) {
+static inline xy delta(int ch) {
     switch (ch) {
         case KEY_LEFT:  case 'a': case 'A': return {-1,  0};
         case KEY_RIGHT: case 'd': case 'D': return { 1,  0};
@@ -58,7 +58,7 @@ static inline xy deltaFromKey(int ch) {
     }
 }
 
-static inline int rotateFromKey(int ch) {
+static inline int deltaRotate(int ch) {
     switch (ch) {
         case 'e': case 'E': return  1;
         case 'q': case 'Q': return -1;
@@ -88,55 +88,47 @@ void rotate(bool clockwise, vector<xy>& point) {
 void movePlayer(WINDOW* w, const vector<pair<vector<xy>, bool>>& bMenu) {
     keypad(w, TRUE);
 
-    vector<xy> pos = { {0, 0} }, tmp, screen = bTransform(pos);
-    xy move{0, 0};
-
+    vector<xy> pos{{0, 0}}, screen = bTransform(pos);
     const int limit = BOARD_SIZE - 1;
+    int ch;
     bool onBoat = false;
 
-    draw(w, { { screen[0].x - 1, screen[0].y } }, "[.]", 2);
     wrefresh(w);
 
-    int ch;
     while ((ch = wgetch(w)) != 27) {
         if (ch == '\n' && onBoat) break;
 
-        move = deltaFromKey(ch);
+        const xy move = delta(ch);
         if (move.x == 0 && move.y == 0) continue;
 
-        tmp = pos;
-        applyOffset(tmp, move);
-        if (!checkValid(w, tmp, limit)) continue;
+        vector<xy> candidate = pos;
+        applyOffset(candidate, move);
+        if (!checkValid(w, candidate, limit)) continue;
 
         if (onBoat) {
             draw(w, screen, " o ", 1);
             onBoat = false;
-        } else{
-            draw(w, { { screen[0].x - 1, screen[0].y } }, " . ", 1);
+        } else {
+            draw(w, {{screen[0].x - 1, screen[0].y}}, " . ", 1);
         }
 
-        auto g = bTransform(tmp);
-        chtype cell = mvwinch(w, g[0].y, g[0].x);
-        size_t i = 0;
+        const auto grid = bTransform(candidate);
+        const chtype cell = mvwinch(w, grid[0].y, grid[0].x);
 
         if ((cell & A_CHARTEXT) == BCH[0]) {
-            tmp = boats[boatCoords(w, tmp[0])].first;
+            vector<xy> boatPos = boats[boatCoords(w, candidate[0])].first;
+
             onBoat = true;
-            if (ch == 27) { // ENTER
-                //for (const auto& p : pos) --p.x;
-                moveBoat(w, tmp);
+            pos = std::move(candidate);
 
-            } else { // JUST PASSING TRU
+            screen = bTransform(boatPos);
+            for (auto& p : screen) --p.x;
 
-                pos = std::move(tmp);
-                screen = bTransform(pos);
-                for (auto& p : screen) --p.x;
-                draw(w, screen, "[o]", 2);
-            }
+            draw(w, screen, "[o]", 2);
         } else {
-            pos = std::move(tmp);
+            pos = std::move(candidate);
             screen = bTransform(pos);
-            draw(w, { { screen[0].x - 1, screen[0].y } }, "[.]", 2);
+            draw(w, {{screen[0].x - 1, screen[0].y}}, "[.]", 2);
         }
 
         wrefresh(w);
@@ -147,32 +139,39 @@ void moveBoat(WINDOW* w, vector<xy>& pos) {
     keypad(w, TRUE);
     const int limit = BOARD_SIZE - 1;
 
-    draw(w, bTransform(pos), BCH, 2);
+    auto drawBoat = [&](const char* glyph, int color) {
+        auto screen = bTransform(pos);
+        for (auto& p : screen) --p.x;
+        draw(w, screen, glyph, color);
+    };
+
+    drawBoat("[o]", 2);
     wrefresh(w);
 
-    int ch = 0;
+    int ch;
     while ((ch = wgetch(w)) != '\n') {
-        const xy move = deltaFromKey(ch);
-        const int rot = rotateFromKey(ch);
+        const xy move = delta(ch);
+        const int rot = deltaRotate(ch);
 
         if (rot == 0 && move.x == 0 && move.y == 0) continue;
 
-        draw(w, bTransform(pos), ".", 1);
+        drawBoat(" . ", 1);
 
-        auto tmp = pos;
+        vector<xy> candidate = pos;
 
         if (rot != 0) {
-            const bool clockwise = (rot == -1);
-            rotate(clockwise, tmp);
+            rotate(rot == -1, candidate);
         } else {
-            applyOffset(tmp, move);
+            applyOffset(candidate, move);
         }
 
-        if (checkValid(w, tmp, limit)) {
-
-            pos = std::move(tmp);
+        if (checkValid(w, candidate, limit, TRUE)) {
+            pos = std::move(candidate);
         }
-        draw(w, bTransform(pos), BCH, 2);
+
+        drawBoat("[o]", 2);
         wrefresh(w);
     }
+
+    drawBoat(" o ", 1);
 }

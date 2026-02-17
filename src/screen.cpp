@@ -3,10 +3,16 @@
 
 /******************** DRAW SCREEN ********************/
 
-bool checkValid(WINDOW* w, const vector<xy>& pts, int limit) {
+bool checkValid(WINDOW* w, const vector<xy>& pts, int limit, bool checkBoat) {
     for (const auto& p : pts) {
         if (p.x < 0 || p.x > limit || p.y < 0 || p.y > limit){
             return false;
+        } else if (checkBoat) {
+            const chtype cell = mvwinch(
+                w,
+                p.y * BOARD_ROWS + BOARD_ROWS,
+                p.x * BOARD_COLS + HEADER_COLS);
+            if ((cell & A_CHARTEXT) == BCH[0]) return false;
         }
     }
     return true;
